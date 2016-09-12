@@ -35,6 +35,9 @@
 #ifndef __PROJECT_CONF_H__
 #define __PROJECT_CONF_H__
 
+#define DOT_15_4G_CONF_FREQUENCY_BAND_ID	DOT_15_4G_FREQUENCY_BAND_920
+#define WITH_ORCHESTRA 1
+
 /* Set to run orchestra */
 #ifndef WITH_ORCHESTRA
 #define WITH_ORCHESTRA 0
