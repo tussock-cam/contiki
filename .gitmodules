@@ -14,3 +14,6 @@
 	path = platform/stm32nucleo-spirit1/stm32cube-lib
 	url = https://github.com/STclab/stm32nucleo-spirit1-lib
 
+[submodule "dev/rfm9x/lmic"]
+	path = dev/rfm9x/lmic
+	url = https://github.com/tussock-cam/lmic.git
