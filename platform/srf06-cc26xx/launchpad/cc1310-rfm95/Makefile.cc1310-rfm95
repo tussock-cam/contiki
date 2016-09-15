@@ -1,0 +1,14 @@
+### Will allow the inclusion of the correct CPU makefile
+CPU_FAMILY = cc13xx
+
+### Add to the source dirs
+CONTIKI_TARGET_DIRS += launchpad/cc1310-rfm95
+
+
+MODULES += dev/rfm9x dev/rfm9x/lmic/
+BOARD_SOURCEFILES += rfm9x-arch.c
+
+DEFINES +=CFG_kotahi=1,CFG_sx1276_radio=1,OSTICKS_PER_SEC_DIVIDER=2
+
+### Include the common launchpad makefile
+include $(PLATFORM_ROOT_DIR)/launchpad/Makefile.launchpad

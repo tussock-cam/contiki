@@ -65,7 +65,9 @@
 #include "button-sensor.h"
 #include "dev/serial-line.h"
 #include "net/mac/frame802154.h"
-
+#if BOARD_CC1310_RFM9X
+#include "dev/rfm9x/rfm9x-arch.h"
+#endif
 #include "driverlib/driverlib_release.h"
 
 #include <stdio.h>
@@ -221,6 +223,10 @@ main(void)
   queuebuf_init();
   process_start(&tcpip_process, NULL);
 #endif /* NETSTACK_CONF_WITH_IPV6 */
+
+#if ENABLE_LORA
+  rfm9x_init();
+#endif
 
   fade(LEDS_GREEN);
 
