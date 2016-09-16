@@ -31,6 +31,7 @@
 #include "lib/random.h"
 #include "sys/ctimer.h"
 #include "sys/ctimer.h"
+#include "apps/lora/lora.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -45,13 +46,34 @@ PROCESS_THREAD(lora_app_process, ev, data)
   PROCESS_BEGIN();
   PROCESS_PAUSE();
 
-  printf("LoRa client starting...");
+  printf("LoRa client starting...\n");
 
+  static const uint8_t NWKSKEY[16] = { 0x3D, 0xDC, 0x46, 0xA9, 0x7E, 0x70, 0xB6, 0x79, 0x00, 0x71, 0x02, 0x40, 0x9E, 0x2A, 0xCE, 0x2E};
 
+  // LoRaWAN AppSKey, application session key
+  static const uint8_t APPSKEY[16] = { 0x49, 0x54, 0x7E, 0x02, 0x3A, 0x4F, 0xFA, 0xFD, 0x22, 0xDF, 0x9E, 0x5E, 0xBA, 0xFC, 0x25, 0xEA};
 
+  // LoRaWAN end-device address (DevAddr)
+  static const uint32_t DEVADDR =  0x008EE225; // <-- Change this address for every node
 
+  printf("Configure LoRa details...\n");
+  lora_set_auth_details(DEVADDR, NWKSKEY, APPSKEY);
+
+  static uint8_t txdata[] = {0xab};
+  static bool result;
+  result = lora_send(txdata, sizeof(txdata));
+
+  printf("TX result: %d\n", result);
+
+  static struct etimer timer;
+  etimer_set(&timer, CLOCK_SECOND * 10);
   while(1) {
     PROCESS_YIELD();
+
+     result = lora_send(txdata, sizeof(txdata));
+
+     printf("TX result: %d\n", result);
+
   }
 
   PROCESS_END();

@@ -40,12 +40,18 @@ static inline void configure_output(int ioid)
 void rfm9x_io_init(void)
 {
 	configure_input(RFM_DIO0_IOID, gpio_isr);
+	configure_input(RFM_DIO1_IOID, gpio_isr);
+	configure_input(RFM_DIO2_IOID, gpio_isr);
+	configure_output(RFM_RST_IOID);
+
 }
 
 void rfm9x_spi_init(void)
 {
-	ti_lib_ioc_pin_type_gpio_output(RFM_SPI_NSS_IOID);
-	ti_lib_ioc_io_port_pull_set(RFM_SPI_NSS_IOID, IOC_IOPULL_UP);
+	configure_output(RFM_SPI_NSS_IOID);
+
+	ti_lib_ioc_io_port_pull_set(BOARD_IOID_SPI_MISO, IOC_IOPULL_UP);
+
 
 	rfm9x_set_nss(1); /* Deasserted */
 	board_spi_open(4000000, RFM_SPI_CLK_IOID);
@@ -87,13 +93,18 @@ void rfm9x_set_rst(uint8_t val)
 void rfm9x_disable_rst(void)
 {
 	ti_lib_ioc_pin_type_gpio_input(RFM_RST_IOID);
+	//ti_lib_ioc_io_port_pull_set(RFM_RST_IOID, IOC_IOPULL_UP);
+
 }
 
 uint8_t rfm9x_spi_read_write(uint8_t out)
 {
 	uint32_t ul;
-	ti_lib_ssi_data_put(SSI0_BASE, out);
+	ti_lib_ssi_data_put_non_blocking(SSI0_BASE, out);
 	ti_lib_rom_ssi_data_get(SSI0_BASE, &ul);
+
+
+	//printf("SPIx: %02X -> %02X\n", out, ul);
 	return (uint8_t)ul;
 }
 

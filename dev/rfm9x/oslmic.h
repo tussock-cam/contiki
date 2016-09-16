@@ -144,6 +144,7 @@ u4_t os_aes (u1_t mode, xref2u1_t buf, u2_t len);
 #endif
 
 u1_t radio_rand1 (void);
+u2_t os_getRndU2();
 #define os_getRndU1() radio_rand1()
 void radio_irq_handler (u1_t dio);
 void os_setCallback (osjob_t* job, osjobcb_t cb);

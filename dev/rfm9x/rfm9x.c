@@ -7,14 +7,24 @@
 #include "lmic/lmic.h"
 #include "dev/spi.h"
 #include "contiki.h"
+#include "lib/random.h"
 #include <stdint.h>
 #include <stdio.h>
 
 DECLARE_LMIC;
 
+#define PRINTF(...) \
+	do { \
+		printf("rfm9x: "); \
+		printf(__VA_ARGS__); \
+		printf("\n"); \
+	} while (0)
+
+#define INFO(...) PRINTF(__VA_ARGS__)
+
 #define RFM_ASSERT(cond) do { \
 	if(!(cond)) { \
-		printf("rfm9x: Assertion failed at line: %d\n", __LINE__); \
+		PRINTF("Assertion failed at line: %d", __LINE__); \
 		hal_failed(); \
 	} \
 } while(0)
@@ -35,6 +45,8 @@ static void reset_job(osjob_t* job)
 
 static void finish_job(osjob_t* job)
 {
+	INFO("Finishing job...");
+
 	hal_disableIRQs();
 
 	osjobcb_t callback = NULL;
@@ -68,6 +80,7 @@ static void finish_job(osjob_t* job)
 	hal_enableIRQs();
 
 	if (callback) {
+		INFO("Notified callback!");
 		callback(job);
 	}
 }
@@ -82,15 +95,21 @@ PROCESS_THREAD(lora_rfm9x_process, ev, data)
   PROCESS_POLLHANDLER(pollhandler());
   PROCESS_BEGIN();
 
-  printf("Initialize rfm9x...");
+  INFO("Initialize rfm9x...");
 
   reset_job(&LMIC.osjob);
 
   hal_init();
   lmic_radio_init();
   LMIC_init();
+  LMIC_reset();
 
-  printf("LoRa rfm9x starting...");
+  INFO("LoRa rfm9x starting...");
+
+  LMIC_setLinkCheckMode(0);
+  LMIC_setDrTxpow(DR_SF12, 20);
+
+  INFO("Wait for polls...");
 
   PROCESS_YIELD_UNTIL(ev == PROCESS_EVENT_EXIT);
   PROCESS_END();
@@ -100,6 +119,16 @@ PROCESS_THREAD(lora_rfm9x_process, ev, data)
 ostime_t os_getTime ()
 {
     return hal_ticks();
+}
+
+u2_t os_getRndU2()
+{
+	return random_rand();
+}
+
+void onEvent(ev_t e)
+{
+	INFO("Got event %d", e);
 }
 
 static void job_timer_callback(struct rtimer* t, void* ptr)
@@ -136,11 +165,13 @@ static void schedule_job(osjob_t* job, rtimer_clock_t deadline, bool run_immedia
 
 void os_setCallback (osjob_t* job, osjobcb_t cb)
 {
+	INFO("Schedule immediate callback!!");
 	schedule_job(job, 0, true, cb);
 }
 
 void os_setTimedCallback (osjob_t* job, ostime_t time, osjobcb_t cb)
 {
+	INFO("Schedule timed callback!!");
 	rtimer_clock_t real_time = time * OSTICKS_PER_SEC_DIVIDER;
 	schedule_job(job, real_time, false, cb);
 }
@@ -301,6 +332,7 @@ u1_t hal_checkTimer (u4_t targettime);
 void hal_failed (void)
 {
 	printf("LMIC: FATAL ERROR!\n");
+	while (1) ;
 
 }
 
