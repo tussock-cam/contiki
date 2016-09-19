@@ -70,9 +70,9 @@ PROCESS_THREAD(lora_app_process, ev, data)
   while(1) {
     PROCESS_YIELD();
 
-     result = lora_send(txdata, sizeof(txdata));
+    // result = lora_send(txdata, sizeof(txdata));
 
-     printf("TX result: %d\n", result);
+   //  printf("TX result: %d\n", result);
 
   }
 

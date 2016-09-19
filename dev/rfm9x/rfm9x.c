@@ -59,9 +59,11 @@ static void finish_job(osjob_t* job)
 	if (job->pending) {
 		 if (!job->run_immediately) {
 			rtimer_clock_t now = RTIMER_NOW();
-			bool expired = RTIMER_CLOCK_LT(now, job->rtimer_deadline) || job->rtimer_deadline == RTIMER_NOW();
+			bool expired = RTIMER_CLOCK_LT(job->rtimer_deadline, now) || job->rtimer_deadline == RTIMER_NOW();
 			if (expired) {
 				callback = job->func;
+			} else {
+				INFO("Deadline isn't up yet.. ignore (now: %lu, then: %lu)", now, job->rtimer_deadline);
 			}
 		} else {
 			callback = job->func;
@@ -75,6 +77,8 @@ static void finish_job(osjob_t* job)
 			 */
 			reset_job(job);
 		}
+	} else {
+		INFO("Job cancelled, ignore.");
 	}
 
 	hal_enableIRQs();
@@ -165,13 +169,11 @@ static void schedule_job(osjob_t* job, rtimer_clock_t deadline, bool run_immedia
 
 void os_setCallback (osjob_t* job, osjobcb_t cb)
 {
-	INFO("Schedule immediate callback!!");
 	schedule_job(job, 0, true, cb);
 }
 
 void os_setTimedCallback (osjob_t* job, ostime_t time, osjobcb_t cb)
 {
-	INFO("Schedule timed callback!!");
 	rtimer_clock_t real_time = time * OSTICKS_PER_SEC_DIVIDER;
 	schedule_job(job, real_time, false, cb);
 }

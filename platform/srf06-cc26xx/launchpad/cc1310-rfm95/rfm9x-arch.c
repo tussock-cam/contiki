@@ -12,6 +12,8 @@
 #define RFM_RST_IOID			(IOID_30)
 //#define RFM_RX_IOID				()
 //#define RFM_TX_IOID				()
+#define RFM_DEBUG1_IOID			(IOID_12)
+#define RFM_DEBUG2_IOID			(IOID_22)
 
 static void gpio_isr(uint8_t ioid);
 
@@ -27,8 +29,12 @@ static void set_pin(int ioid, uint8_t val)
 static inline void configure_input(int ioid, void(*isr_handler)(uint8_t))
 {
 	ti_lib_ioc_pin_type_gpio_input(ioid);
-	ti_lib_ioc_io_port_pull_set(ioid, IOC_IOPULL_UP);
+	//ti_lib_ioc_io_port_pull_set(ioid, IOC_IOPULL_DOWN);
+
+
 	gpio_interrupt_register_handler(ioid, isr_handler);
+	ti_lib_ioc_io_int_set(ioid, IOC_INT_ENABLE, IOC_RISING_EDGE);
+
 }
 
 static inline void configure_output(int ioid)
@@ -44,7 +50,23 @@ void rfm9x_io_init(void)
 	configure_input(RFM_DIO2_IOID, gpio_isr);
 	configure_output(RFM_RST_IOID);
 
+	configure_output(RFM_DEBUG1_IOID);
+	set_pin(RFM_DEBUG1_IOID, 0);
+
+	configure_output(RFM_DEBUG2_IOID);
+	set_pin(RFM_DEBUG2_IOID, 0);
 }
+
+void rfm9x_set_debug_pin(void)
+{
+	ti_lib_gpio_toggle_dio(RFM_DEBUG1_IOID);
+}
+
+void rfm9x_set_debug2_pin(void)
+{
+	ti_lib_gpio_toggle_dio(RFM_DEBUG2_IOID);
+}
+
 
 void rfm9x_spi_init(void)
 {
@@ -59,7 +81,9 @@ void rfm9x_spi_init(void)
 
 void rfm9x_interrupt_init(void)
 {
-
+	ti_lib_rom_ioc_int_enable(RFM_DIO0_IOID);
+	ti_lib_rom_ioc_int_enable(RFM_DIO1_IOID);
+	ti_lib_rom_ioc_int_enable(RFM_DIO2_IOID);
 }
 
 void rfm9x_disable_all_irq(void)
