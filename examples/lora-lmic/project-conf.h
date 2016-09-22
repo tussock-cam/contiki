@@ -5,6 +5,6 @@
 #define NETSTACK_CONF_MAC     	nullmac_driver
 //#define NETSTACK_CONF_RADIO		nullradio_driver
 #define NETSTACK_CONF_NETWORK 	sicslowpan_driver
-#define ENABLE_LORA				1
-
+#define ENABLE_LORA				0
+#define DRIVERLIB_DEBUG 1
 #endif

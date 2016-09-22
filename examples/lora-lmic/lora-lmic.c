@@ -32,6 +32,7 @@
 #include "sys/ctimer.h"
 #include "sys/ctimer.h"
 #include "apps/lora/lora.h"
+#include "mb7369-sensor.h"
 #include <stdio.h>
 #include <string.h>
 
@@ -39,6 +40,11 @@
 PROCESS(lora_app_process, "LoRa client process");
 AUTOSTART_PROCESSES(&lora_app_process);
 /*---------------------------------------------------------------------------*/
+
+void __error__(char* file, uint32_t  line) {
+	printf("ASSERT: %s line %d\n", file, line);
+	while (1) ;
+}
 
 /*---------------------------------------------------------------------------*/
 PROCESS_THREAD(lora_app_process, ev, data)
@@ -48,7 +54,7 @@ PROCESS_THREAD(lora_app_process, ev, data)
 
   printf("LoRa client starting...\n");
 
-  static const uint8_t NWKSKEY[16] = { 0x3D, 0xDC, 0x46, 0xA9, 0x7E, 0x70, 0xB6, 0x79, 0x00, 0x71, 0x02, 0x40, 0x9E, 0x2A, 0xCE, 0x2E};
+  /*static const uint8_t NWKSKEY[16] = { 0x3D, 0xDC, 0x46, 0xA9, 0x7E, 0x70, 0xB6, 0x79, 0x00, 0x71, 0x02, 0x40, 0x9E, 0x2A, 0xCE, 0x2E};
 
   // LoRaWAN AppSKey, application session key
   static const uint8_t APPSKEY[16] = { 0x49, 0x54, 0x7E, 0x02, 0x3A, 0x4F, 0xFA, 0xFD, 0x22, 0xDF, 0x9E, 0x5E, 0xBA, 0xFC, 0x25, 0xEA};
@@ -63,17 +69,25 @@ PROCESS_THREAD(lora_app_process, ev, data)
   static bool result;
   result = lora_send(txdata, sizeof(txdata));
 
-  printf("TX result: %d\n", result);
+  printf("TX result: %d\n", result);*/
 
   static struct etimer timer;
-  etimer_set(&timer, CLOCK_SECOND * 10);
+  etimer_set(&timer, CLOCK_SECOND * 1);
   while(1) {
     PROCESS_YIELD();
 
+    printf("Read distance...\n");
+
+    uint16_t distance = (uint16_t)mb7369_sensor.value(0);
+    printf("Distance: %u\n", distance);
+
+    //etimer_reset(&timer);
     // result = lora_send(txdata, sizeof(txdata));
 
    //  printf("TX result: %d\n", result);
 
+
+   //etimer_set(&timer, CLOCK_SECOND * 10);
   }
 
   PROCESS_END();

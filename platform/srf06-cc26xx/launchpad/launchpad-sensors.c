@@ -42,6 +42,13 @@
 #include <string.h>
 /*---------------------------------------------------------------------------*/
 /** \brief Exports a global symbol to be used by the sensor API */
+#ifndef BOARD_CC1310_RFM9X
 SENSORS(&button_left_sensor, &button_right_sensor);
+#else
+#include "mb7369-sensor.h"
+
+SENSORS(&button_left_sensor, &button_right_sensor, &mb7369_sensor);
+
+#endif
 /*---------------------------------------------------------------------------*/
 /** @} */
