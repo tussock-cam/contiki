@@ -90,7 +90,10 @@
 #endif
 
 #if CPU_FAMILY_CC13XX
+
+#ifndef NETSTACK_CONF_RADIO
 #define NETSTACK_CONF_RADIO        prop_mode_driver
+#endif
 
 #ifndef RF_CORE_CONF_CHANNEL
 #define RF_CORE_CONF_CHANNEL                      0

@@ -22,9 +22,10 @@ DECLARE_LMIC;
 
 #define INFO(...) PRINTF(__VA_ARGS__)
 
-#define RFM_ASSERT(cond) do { \
+#define RFM_ASSERT(cond, msg) do { \
 	if(!(cond)) { \
 		PRINTF("Assertion failed at line: %d", __LINE__); \
+		PRINTF("%s\n, msg"); \
 		hal_failed(); \
 	} \
 } while(0)
@@ -45,7 +46,7 @@ static void reset_job(osjob_t* job)
 
 static void finish_job(osjob_t* job)
 {
-	INFO("Finishing job...");
+//	INFO("Finishing job...");
 
 	hal_disableIRQs();
 
@@ -84,7 +85,7 @@ static void finish_job(osjob_t* job)
 	hal_enableIRQs();
 
 	if (callback) {
-		INFO("Notified callback!");
+		//INFO("Notified callback!");
 		callback(job);
 	}
 }
@@ -132,7 +133,7 @@ u2_t os_getRndU2()
 
 void onEvent(ev_t e)
 {
-	INFO("Got event %d", e);
+	INFO("Got event %d\n", (int)e);
 }
 
 static void job_timer_callback(struct rtimer* t, void* ptr)
@@ -146,11 +147,11 @@ static void schedule_job(osjob_t* job, rtimer_clock_t deadline, bool run_immedia
 
 	/* Simplifying assumption is that lmic/radio use a single job (which they do) */
 	if (job != &LMIC.osjob) {
-		RFM_ASSERT("Expected only a single job!");
+		RFM_ASSERT(0, "Expected only a single job!");
 	}
 
 	if (job->pending) {
-		RFM_ASSERT("New event scheduled before old one was finished!");
+		RFM_ASSERT(0, "New event scheduled before old one was finished!");
 	}
 
 	job->run_immediately = run_immediately;
